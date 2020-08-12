@@ -5,6 +5,7 @@ import math
 from matplotlib import pyplot as plt
 import os
 from sklearn.metrics import mean_squared_error
+import random
 
 
 def load_numpy_data(file):
@@ -108,7 +109,58 @@ def create_projection_dlt(points_2d, points_3d):
 
     return H, error
 
+def calculate_max_value(points):
+    max = 0
 
+    for p in points:
+        if p[0]> max:
+            max = p[0]
+        if p[1]> max:
+            max = p[0]
+
+    return max
+
+
+def adiciona_ruido_ro(points, ro):
+    points_ruidosos = []
+
+    for p in points:
+        r = random.randint(1,2)
+        point= []
+        if r == 2:
+            for axis in p:
+                point.append(axis-ro)
+        else:
+            for axis in p:
+                point.append(axis+ro)
+
+        point = np.array(point)
+        point = point/point[-1]
+
+        points_ruidosos.append(point)
+
+    return np.array(points_ruidosos)
+
+
+def adiciona_ruido_percentagem(points_3d, percentage, max3d):
+    points_ruidosos = []
+
+    number_of_samples = int(len(points_3d*percentage))
+
+    for i in range(number_of_samples):
+        r = random.randint(0, len(points_3d)-1)
+
+        point= []
+
+        for axis in points_3d[r]:
+                point.append(random.randint(int(-max3d/2), int(max3d/2)))
+
+        point = np.array(point)
+        point = point/point[-1]
+
+        points_ruidosos.append(point)
+
+    return np.array(points_ruidosos)
 
 
 if __name__ == '__main__':
@@ -127,9 +179,47 @@ if __name__ == '__main__':
     #subitem 2
     projection_matrix, projectionError = create_projection_dlt(points_2d, points_3d)
 
+    print("Matriz de projecao para os pontos sem ruido de 3d para 2d")
+
     print(projection_matrix)
 
     #subitem 3
+
+    print("erro de projecao:")
+    print(projectionError)
+
+    #subitem 4
+
+    print("adicionando ruido ro")
+
+    max3d = calculate_max_value(points_3d)
+
+    ro = 0.05*max3d
+
+    pontos_ruidosos_3d = adiciona_ruido_ro(points_3d, ro)
+
+    projection_matrix_ruido_ro, projectionError = create_projection_dlt(points_2d, pontos_ruidosos_3d)
+
+    print("Matriz de projecao para os pontos com ruido ro de 3d para 2d")
+
+    print(projection_matrix_ruido_ro)
+
+    print("erro de projecao:")
+    print(projectionError)
+
+
+    #subitem 5
+
+    print("adicionando 20 porcento de ruido nos pontos 3d")
+
+    pontos_ruidosos_3d = adiciona_ruido_percentagem(points_3d, 0.2, max3d)
+
+    projection_matrix_ruido_percentagem, projectionError = create_projection_dlt(points_2d, pontos_ruidosos_3d)
+
+
+    print("Matriz de projecao para os pontos com 20 porcento de ruido de 3d para 2d")
+
+    print(projection_matrix_ruido_percentagem)
 
     print("erro de projecao:")
     print(projectionError)
