@@ -1,0 +1,1 @@
+Renomeie o arquivo siftWin32.ex_ para siftWin32.exe
